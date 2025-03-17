@@ -29,7 +29,7 @@ class BooksStore {
   }
 
   get privateBooksCount() {
-    return this.books.filter((book) => book.filter === 'private').length;
+    return this.books.length;
   }
 
   setFilter(type: 'all' | 'private') {
