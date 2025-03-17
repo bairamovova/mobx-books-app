@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import { observer } from 'mobx-react-lite';
+import '@testing-library/jest-dom';
 import { makeAutoObservable } from 'mobx';
 import Header from './Header';
 

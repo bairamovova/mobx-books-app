@@ -7,7 +7,7 @@ const mockApi = ApiGateway;
 
 describe('BooksRepository', () => {
   beforeEach(() => {
-    mockApi.mockClear();
+    jest.clearAllMocks();
   });
 
   it('should fetch all books correctly', async () => {
@@ -16,7 +16,7 @@ describe('BooksRepository', () => {
       { name: 'Book 2', author: 'Author 2' },
     ];
 
-    mockApi.prototype.get.mockResolvedValue({
+    (mockApi.prototype.get as jest.Mock).mockResolvedValue({
       status: 'ok',
       data: mockBooks,
     });
@@ -32,7 +32,7 @@ describe('BooksRepository', () => {
       { name: 'Private Book 1', author: 'Private Author 1' },
     ];
 
-    mockApi.prototype.get.mockResolvedValue({
+    (mockApi.prototype.get as jest.Mock).mockResolvedValue({
       status: 'ok',
       data: mockPrivateBooks,
     });
@@ -46,7 +46,7 @@ describe('BooksRepository', () => {
   });
 
   it('should add a new book successfully', async () => {
-    mockApi.prototype.post.mockResolvedValue({
+    (mockApi.prototype.post as jest.Mock).mockResolvedValue({
       status: 'ok',
     });
 
@@ -60,7 +60,7 @@ describe('BooksRepository', () => {
   });
 
   it('should return false if adding a new book fails', async () => {
-    mockApi.prototype.post.mockResolvedValue({
+    (mockApi.prototype.post as jest.Mock).mockResolvedValue({
       status: 'error',
     });
 
@@ -70,7 +70,7 @@ describe('BooksRepository', () => {
   });
 
   it('should reset books successfully', async () => {
-    mockApi.prototype.put.mockResolvedValue({
+    (mockApi.prototype.put as jest.Mock).mockResolvedValue({
       status: 'ok',
     });
 
