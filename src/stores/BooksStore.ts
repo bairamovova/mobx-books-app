@@ -15,26 +15,37 @@ class BooksStore {
   }
 
   async fetchBooks() {
-    this.books = await BooksRepository.getBooks(this.filter);
+    try {
+      const fetchedBooks = await BooksRepository.getBooks(this.filter);
+      console.log(fetchedBooks, 'fetchedBooks');
+      
+      this.books = fetchedBooks;
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
   }
 
   async addBook(name: string, author: string) {
     const success = await BooksRepository.addBook(name, author);
-    if (success) this.fetchBooks();
+    if (success) {
+      await this.fetchBooks();
+    }
   }
 
   async resetBooks() {
     const result = await BooksRepository.resetBooks();
-    if (result.status === 'ok') this.fetchBooks();
+    if (result.status === 'ok') {
+      await this.fetchBooks();
+    }
   }
 
   get privateBooksCount() {
     return this.books.length;
   }
 
-  setFilter(type: 'all' | 'private') {
+  async setFilter(type: 'all' | 'private') {
     this.filter = type;
-    this.fetchBooks();
+    await this.fetchBooks();
   }
 }
 

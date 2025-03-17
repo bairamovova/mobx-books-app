@@ -1,6 +1,7 @@
 import { API_BASE } from './config';
 
 interface ApiResponse {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 

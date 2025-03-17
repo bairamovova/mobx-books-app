@@ -5,16 +5,24 @@ import BooksStore from '../stores/BooksStore';
 const BooksView = observer(() => {
   const [name, setName] = useState<string>('');
   const [author, setAuthor] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    BooksStore.fetchBooks();
-  }, []);
-
+    const fetchBooks = async () => {
+      setLoading(true);
+      await BooksStore.fetchBooks();
+      setLoading(false);
+    };
+    fetchBooks();
+  }, [BooksStore.filter]);
+  
   const handleAddBook = useCallback(async () => {
     if (name && author) {
+      setLoading(true);
       await BooksStore.addBook(name, author);
       setName('');
       setAuthor('');
+      setLoading(false);
     }
   }, [name, author]);
 
@@ -22,8 +30,10 @@ const BooksView = observer(() => {
     BooksStore.setFilter(filter);
   }, []);
 
-  const handleResetBooks = useCallback(() => {
-    BooksStore.resetBooks();
+  const handleResetBooks = useCallback(async () => {
+    setLoading(true);
+    await BooksStore.resetBooks();
+    setLoading(false);
   }, []);
 
   const handleNameChange = useCallback(
@@ -54,11 +64,15 @@ const BooksView = observer(() => {
 
       <p>Current filter: {BooksStore.filter}</p>
 
-      {BooksStore.books.map((book, index) => (
-        <div key={index}>
-          {book.author}: {book.name}
-        </div>
-      ))}
+      {loading ? (
+        <p>Loading books...</p>
+      ) : (
+        BooksStore.books.map((book, index) => (
+          <div key={index}>
+            {book.author}: {book.name}
+          </div>
+        ))
+      )}
 
       <div>
         <input
@@ -73,7 +87,9 @@ const BooksView = observer(() => {
           value={author}
           onChange={handleAuthorChange}
         />
-        <button onClick={handleAddBook}>Add</button>
+        <button onClick={handleAddBook} disabled={loading}>
+          {loading ? 'Adding...' : 'Add'}
+        </button>
       </div>
     </div>
   );
