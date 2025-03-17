@@ -1,9 +1,14 @@
 import { makeAutoObservable } from 'mobx';
 import BooksRepository from '../services/BooksRepository';
 
+interface Book {
+  name: string;
+  author: string;
+}
+
 class BooksStore {
-  books = [];
-  filter = 'all';
+  books: Book[] = [];
+  filter: 'all' | 'private' = 'all';
 
   constructor() {
     makeAutoObservable(this);
@@ -13,7 +18,7 @@ class BooksStore {
     this.books = await BooksRepository.getBooks(this.filter);
   }
 
-  async addBook(name, author) {
+  async addBook(name: string, author: string) {
     const success = await BooksRepository.addBook(name, author);
     if (success) this.fetchBooks();
   }
@@ -24,10 +29,10 @@ class BooksStore {
   }
 
   get privateBooksCount() {
-    return this.books.length;
+    return this.books.filter((book) => book.filter === 'private').length;
   }
 
-  setFilter(type) {
+  setFilter(type: 'all' | 'private') {
     this.filter = type;
     this.fetchBooks();
   }

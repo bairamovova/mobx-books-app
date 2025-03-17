@@ -1,10 +1,10 @@
-import BooksView from './components/BooksView'
+import BooksView from './components/BooksView';
 import Header from './components/Header';
-import './App.css'
+import style from './App.module.scss';
 
 function App() {
   return (
-    <div className='app'>
+    <div className={style.app}>
       <Header />
       <BooksView />
     </div>
