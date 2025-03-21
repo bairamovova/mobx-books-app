@@ -1,7 +1,8 @@
 import { makeAutoObservable } from 'mobx';
-import BooksRepository from '../services/BooksRepository';
+import BooksController from '../controllers/BooksController';
 
 interface Book {
+  id?: string;
   name: string;
   author: string;
 }
@@ -9,43 +10,43 @@ interface Book {
 class BooksStore {
   books: Book[] = [];
   filter: 'all' | 'private' = 'all';
+  isLoading = false;
+  error: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  async fetchBooks() {
-    try {
-      const fetchedBooks = await BooksRepository.getBooks(this.filter);
-      console.log(fetchedBooks, 'fetchedBooks');
-      
-      this.books = fetchedBooks;
-    } catch (error) {
-      console.error('Error fetching books:', error);
-    }
+  setBooks(books: Book[]) {
+    this.books = books;
   }
 
-  async addBook(name: string, author: string) {
-    const success = await BooksRepository.addBook(name, author);
-    if (success) {
-      await this.fetchBooks();
-    }
+  setFilter(type: 'all' | 'private') {
+    this.filter = type;
   }
 
-  async resetBooks() {
-    const result = await BooksRepository.resetBooks();
-    if (result.status === 'ok') {
-      await this.fetchBooks();
-    }
+  setLoading(state: boolean) {
+    this.isLoading = state;
+  }
+
+  setError(error: string | null) {
+    this.error = error;
   }
 
   get privateBooksCount() {
     return this.books.length;
   }
 
-  async setFilter(type: 'all' | 'private') {
-    this.filter = type;
-    await this.fetchBooks();
+  async fetchBooks() {
+    await BooksController.fetchBooks();
+  }
+
+  async addBook(name: string, author: string) {
+    await BooksController.addBook(name, author);
+  }
+
+  async resetBooks() {
+    await BooksController.resetBooks();
   }
 }
 

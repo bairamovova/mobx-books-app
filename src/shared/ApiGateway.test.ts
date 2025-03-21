@@ -1,82 +1,81 @@
-import BooksRepository from '../services/BooksRepository';
-import ApiGateway from './ApiGateway';
+import ApiGateway from "./ApiGateway";
 
-jest.mock('../shared/ApiGateway');
+global.fetch = jest.fn();
 
-const mockApi = ApiGateway;
+describe('ApiGateway', () => {
+  const api = new ApiGateway();
+  const mockUrl = 'https://api.example.com/test';
 
-describe('BooksRepository', () => {
-  beforeEach(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should fetch all books correctly', async () => {
-    const mockBooks = [
-      { name: 'Book 1', author: 'Author 1' },
-      { name: 'Book 2', author: 'Author 2' },
-    ];
-
-    (mockApi.prototype.get as jest.Mock).mockResolvedValue({
-      status: 'ok',
-      data: mockBooks,
+  test('should make a successful GET request', async () => {
+    const mockResponse = [{ id: 1, name: 'Test Book', author: 'Author' }];
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue(mockResponse),
     });
 
-    const books = await BooksRepository.getBooks('all');
-
-    expect(mockApi.prototype.get).toHaveBeenCalledWith('/books/userId1/');
-    expect(books).toEqual(mockBooks);
+    const result = await api.get(mockUrl);
+    expect(fetch).toHaveBeenCalledWith(mockUrl);
+    expect(result).toEqual(mockResponse);
   });
 
-  it('should fetch private books correctly', async () => {
-    const mockPrivateBooks = [
-      { name: 'Private Book 1', author: 'Private Author 1' },
-    ];
+  test('should throw an error on GET failure', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: false, status: 404 });
 
-    (mockApi.prototype.get as jest.Mock).mockResolvedValue({
-      status: 'ok',
-      data: mockPrivateBooks,
-    });
-
-    const books = await BooksRepository.getBooks('private');
-
-    expect(mockApi.prototype.get).toHaveBeenCalledWith(
-      '/books/userId1/private'
+    await expect(api.get(mockUrl)).rejects.toThrow(
+      'Request failed with status 404'
     );
-    expect(books).toEqual(mockPrivateBooks);
   });
 
-  it('should add a new book successfully', async () => {
-    (mockApi.prototype.post as jest.Mock).mockResolvedValue({
-      status: 'ok',
+  test('should make a successful POST request', async () => {
+    const mockResponse = { status: 'ok' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue(mockResponse),
     });
 
-    const result = await BooksRepository.addBook('New Book', 'New Author');
-
-    expect(mockApi.prototype.post).toHaveBeenCalledWith('/books/userId1/', {
-      name: 'New Book',
-      author: 'New Author',
+    const result = await api.post(mockUrl, {
+      name: 'Test Book',
+      author: 'Author',
     });
-    expect(result).toBe(true);
+    expect(fetch).toHaveBeenCalledWith(
+      mockUrl,
+      expect.objectContaining({ method: 'POST' })
+    );
+    expect(result).toEqual(mockResponse);
   });
 
-  it('should return false if adding a new book fails', async () => {
-    (mockApi.prototype.post as jest.Mock).mockResolvedValue({
-      status: 'error',
-    });
+  test('should throw an error on POST failure', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: false, status: 500 });
 
-    const result = await BooksRepository.addBook('New Book', 'New Author');
-
-    expect(result).toBe(false);
+    await expect(api.post(mockUrl, {})).rejects.toThrow(
+      'Request failed with status 500'
+    );
   });
 
-  it('should reset books successfully', async () => {
-    (mockApi.prototype.put as jest.Mock).mockResolvedValue({
-      status: 'ok',
+  test('should make a successful PUT request', async () => {
+    const mockResponse = { status: 'ok' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue(mockResponse),
     });
 
-    const response = await BooksRepository.resetBooks();
+    const result = await api.put(mockUrl);
+    expect(fetch).toHaveBeenCalledWith(
+      mockUrl,
+      expect.objectContaining({ method: 'PUT' })
+    );
+    expect(result).toEqual(mockResponse);
+  });
 
-    expect(mockApi.prototype.put).toHaveBeenCalledWith('/books/userId1/reset');
-    expect(response.status).toBe('ok');
+  test('should throw an error on PUT failure', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: false, status: 403 });
+
+    await expect(api.put(mockUrl)).rejects.toThrow(
+      'Request failed with status 403'
+    );
   });
 });
