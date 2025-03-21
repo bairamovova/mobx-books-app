@@ -13,7 +13,8 @@ describe('BooksRepository', () => {
   beforeEach(() => {
     apiMock = new ApiGateway() as jest.Mocked<ApiGateway>;
     repo = BooksRepository;
-    repo.api = apiMock;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (repo as any).api = apiMock;
   });
 
   afterEach(() => {
